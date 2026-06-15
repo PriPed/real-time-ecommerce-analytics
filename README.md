@@ -1,84 +1,93 @@
 # Real-Time E-Commerce Analytics Platform
 
-## Overview
+A backend data engineering project that simulates a real-world e-commerce analytics system capable of processing millions of user events in real time. The platform ingests events, streams them through Kafka, stores them in PostgreSQL, caches analytics in Redis, and provides APIs for business insights. Scheduled ETL pipelines using Airflow generate reporting tables and archive data to AWS S3.
 
-A backend data engineering project that processes and analyzes e-commerce events in real time.
+---
 
-The platform simulates an online shopping application where millions of user interactions generate events that are streamed, processed, stored, and exposed through analytics APIs.
+## Problem Statement
 
-Typical events include:
+Modern e-commerce platforms generate massive amounts of user activity every second, such as:
 
 * Product Viewed
 * Product Searched
 * Product Added to Cart
 * Order Placed
 
-The system provides:
-
-* Real-time event ingestion
-* Event streaming with Kafka
-* Analytics data storage
-* Cached API responses
-* Daily ETL pipelines
-* Data backup to S3
-* Reporting tables for business intelligence
-
----
-
-## Business Problem
-
-Modern e-commerce platforms generate massive amounts of event data every second.
-
-Business teams need answers to questions like:
+Businesses need to analyze this data to answer questions like:
 
 * Which products are trending?
-* What are users searching for?
-* How many users abandon their carts?
+* What are the most searched products?
+* Which users are most active?
+* What is the cart abandonment rate?
+* How much revenue is generated daily?
 * What are the peak shopping hours?
-* Which categories generate the most revenue?
 
-This project demonstrates how a modern data engineering pipeline can solve these problems.
+This project demonstrates how a modern data engineering pipeline can provide both real-time and batch analytics.
 
 ---
 
 ## System Architecture
 
-```
-Client / Event Generator
-            |
-            v
-   FastAPI Event Service
-            |
-            v
-          Kafka
-            |
-            v
-     Consumer Service
-            |
-            v
-       PostgreSQL
-            |
-            v
-        Redis Cache
-            |
-            v
-      Analytics APIs
-            |
-            v
-        Dashboard
+```text
+                    +----------------------+
+                    | Client/Event Generator|
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |  FastAPI Event API   |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |        Kafka         |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |   Consumer Service   |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |     PostgreSQL       |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |      Redis Cache     |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |    Analytics APIs    |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |      Dashboard       |
+                    +----------------------+
 
----------------------------------
+------------------------------------------------------
 
-          Airflow
-              |
-              v
-        Daily ETL Jobs
-              |
-              v
-          S3 Backup
-              |
-              v
-      Reporting Tables
+                    +----------------------+
+                    |       Airflow        |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |    Daily ETL Jobs    |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |      AWS S3 Backup   |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |   Reporting Tables   |
+                    +----------------------+
 ```
 
 ---
@@ -90,7 +99,7 @@ Client / Event Generator
 * Python
 * FastAPI
 
-### Streaming
+### Event Streaming
 
 * Apache Kafka
 
@@ -98,11 +107,11 @@ Client / Event Generator
 
 * PostgreSQL
 
-### Cache
+### Caching
 
 * Redis
 
-### Data Pipeline
+### Workflow Orchestration
 
 * Apache Airflow
 
@@ -115,7 +124,7 @@ Client / Event Generator
 * Docker
 * Docker Compose
 
-### Tools
+### Development Tools
 
 * SQLAlchemy
 * Pandas
@@ -124,44 +133,43 @@ Client / Event Generator
 
 ---
 
-## Features
+## Core Features
 
-### Event Ingestion
+### Real-Time Event Ingestion
 
-* Receive user events through REST APIs
-* Validate incoming payloads
+* Accept user events through REST APIs
+* Validate event payloads
 * Publish events to Kafka topics
 
-### Stream Processing
+### Event Processing
 
 * Consume Kafka messages
-* Transform and enrich events
+* Process and transform events
 * Store processed data in PostgreSQL
 
 ### Analytics APIs
 
-* Most viewed products
-* Most searched products
+* Popular products
+* Top searched products
 * Top selling products
 * User activity summary
-* Revenue metrics
+* Revenue analytics
 
 ### Redis Caching
 
 * Cache frequently requested analytics
 * Reduce database load
-* Improve API response times
+* Improve API response time
 
-### ETL Pipeline
+### Batch Processing
 
-* Scheduled using Airflow
-* Aggregate daily analytics
-* Generate reporting tables
-* Backup processed data to S3
+* Daily ETL jobs using Airflow
+* Generate aggregated reporting tables
+* Archive processed data to AWS S3
 
 ---
 
-## Sample Event Payload
+## Sample Event
 
 ```json
 {
@@ -176,7 +184,7 @@ Client / Event Generator
 
 ## Project Structure
 
-```
+```text
 real-time-ecommerce-analytics/
 │
 ├── app/
@@ -188,29 +196,24 @@ real-time-ecommerce-analytics/
 │   └── config/
 │
 ├── airflow/
-│   └── dags/
+│   ├── dags/
 │
 ├── analytics/
-│
 ├── database/
-│
 ├── redis/
-│
-├── docker/
-│
 ├── tests/
-│
 ├── requirements.txt
 ├── docker-compose.yml
+├── .env
 ├── README.md
-└── .env
+└── .gitignore
 ```
 
 ---
 
-## Local Setup
+## Getting Started
 
-### Clone Repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/real-time-ecommerce-analytics.git
@@ -224,7 +227,7 @@ cd real-time-ecommerce-analytics
 python -m venv venv
 ```
 
-Activate:
+### Activate Virtual Environment
 
 Windows
 
@@ -244,13 +247,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Run Services
+### Start Infrastructure
 
 ```bash
 docker-compose up -d
 ```
 
-### Start FastAPI
+### Run FastAPI Server
 
 ```bash
 uvicorn app.main:app --reload
@@ -260,57 +263,69 @@ uvicorn app.main:app --reload
 
 ## API Endpoints
 
-### Event API
+### Publish Event
 
-```
+```http
 POST /events
 ```
 
-### Analytics APIs
+### Get Popular Products
 
-```
+```http
 GET /analytics/popular-products
+```
 
+### Get Top Searches
+
+```http
 GET /analytics/top-searches
+```
 
+### Get Revenue Analytics
+
+```http
 GET /analytics/revenue
+```
 
+### Get User Activity
+
+```http
 GET /analytics/user-activity
 ```
 
 ---
 
-## Future Enhancements
+## Future Improvements
 
 * Apache Spark Streaming
-* ClickHouse for analytics
+* ClickHouse for OLAP analytics
 * Grafana dashboards
 * Elasticsearch integration
 * Kubernetes deployment
-* CI/CD pipeline with GitHub Actions
+* GitHub Actions CI/CD
+* Machine Learning recommendations
 * Real-time fraud detection
-* Machine learning recommendations
 
 ---
 
-## Learning Objectives
+## Learning Goals
 
-This project demonstrates practical experience with:
+This project demonstrates practical knowledge of:
 
 * Event-Driven Architecture
-* Real-Time Data Pipelines
+* Real-Time Data Processing
 * Apache Kafka
-* FastAPI Development
-* PostgreSQL Design
-* Redis Caching
-* Airflow ETL Workflows
-* AWS S3 Storage
-* Docker Containerization
+* FastAPI
+* PostgreSQL
+* Redis
+* Apache Airflow
+* AWS S3
+* Docker
 * Backend System Design
+* Data Engineering Best Practices
 
 ---
 
 ## License
 
-This project is intended for educational and portfolio purposes.
-
+This project is created for learning, portfolio building, and backend data engineering practice.
